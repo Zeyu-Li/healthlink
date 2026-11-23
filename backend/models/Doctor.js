@@ -1,6 +1,7 @@
 /* Doctor data model for mongodb and mongoose */
 
 const mongoose = require('mongoose');
+const hidePasswordHash = require('../helpers/hidePasswordHash');
 const dotenv = require('dotenv');
 dotenv.config({path: '../config.env'})
 
@@ -57,6 +58,7 @@ doctorSchema.virtual('id').get(function () {
 
 doctorSchema.set('toJSON', {
   virtuals: true,
+  transform: hidePasswordHash,
 });
 
 exports.Doctor = mongoose.model('Doctor', doctorSchema);

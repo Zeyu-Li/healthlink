@@ -13,13 +13,12 @@ class APIFeatures {
     const excludeFields = ['page', 'sort', 'limit', 'fields']; // don't want to include
     excludeFields.forEach((el) => delete queryObj[el]);
 
-    // 1.5) advance filtering ex from gte => $gte
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // Only plain field equality: a `$` key (e.g. ?$where=...) would be a MongoDB operator.
+    Object.keys(queryObj)
+      .filter((key) => key.startsWith('$'))
+      .forEach((key) => delete queryObj[key]);
 
-    // const ids = [1,2,3]
-    // Model.find({ '_id': { $in: ids } });
-    this.query = this.query.find(JSON.parse(queryStr));
+    this.query = this.query.find(queryObj);
 
     return this;
   }

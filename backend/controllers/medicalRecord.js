@@ -24,9 +24,11 @@ exports.getAllMedicalRecord = asyncHandler(async (req, res) => {
     .sort()
     .limitFields()
     .paginate();
+  // Patients only ever see their own records, whatever the query string asks for.
+  if (res.locals.type === 'patient') feature.query.where({patient: res.locals.id});
   // Get data
   const medicalRecord = await feature.query;
-  
+
   // return HTTP response
   res.status(200).json({
     status: 'sucess',
