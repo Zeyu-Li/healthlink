@@ -3,9 +3,15 @@
 const express = require('express');
 const sp = require('../controllers/specialization');
 const router = express.Router();
+const jwt = require('../helpers/jwt');
 
-router.route('/').get(sp.getAllSp).post(sp.createSp); // chain route get and create specialization
+// Reading is public (the register page lists specializations); changes are staff-only.
+router.route('/').get(sp.getAllSp).post(jwt.userVerify(['staff']), sp.createSp);
 
-router.route('/:id').get(sp.getSp).put(sp.updateSp).delete(sp.deleteSp); // chain route update and delete specialization
+router
+  .route('/:id')
+  .get(sp.getSp)
+  .put(jwt.userVerify(['staff']), sp.updateSp)
+  .delete(jwt.userVerify(['staff']), sp.deleteSp);
 
 module.exports = router;

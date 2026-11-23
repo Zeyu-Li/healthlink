@@ -1,6 +1,7 @@
 /* Doctor data model for mongodb and mongoose */
 
 const mongoose = require('mongoose');
+const hidePasswordHash = require('../helpers/hidePasswordHash');
 
 const patientSchema = new mongoose.Schema({
   name: {
@@ -59,6 +60,7 @@ patientSchema.virtual('id').get(function () {
 
 patientSchema.set('toJSON', {
   virtuals: true,
+  transform: hidePasswordHash,
 });
 
 exports.Patient = mongoose.model('Patient', patientSchema);

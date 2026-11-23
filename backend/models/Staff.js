@@ -1,6 +1,7 @@
 /* Staff data model for mongodb and mongoose */
 
 const mongoose = require('mongoose');
+const hidePasswordHash = require('../helpers/hidePasswordHash');
 
 const staffSchema = new mongoose.Schema({
   name: {
@@ -44,6 +45,7 @@ staffSchema.virtual('id').get(function () {
 
 staffSchema.set('toJSON', {
   virtuals: true,
+  transform: hidePasswordHash,
 });
 
 exports.Staff = mongoose.model('Staff', staffSchema);

@@ -61,12 +61,12 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
   if (process.env.NODE_ENV == 'development') {
     sendErrorDev(err, res);
-  } else if (process.env.NODE_ENV == 'production') {
+  } else { // production, or NODE_ENV unset: never leave the request hanging
     let error = Object.create(err);
     if (err.name === 'CastError') error = handleCastErrorDB(err);
     if (err.code === 11000) error = handleDuplicateFieldsDB(err);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
+    if (err.name === 'MulterError') error = new AppError(err.message, 400); // e.g. file too large
     sendErrorProd(error, res);
-    //sendErrorProd(error, res);
   }
 };

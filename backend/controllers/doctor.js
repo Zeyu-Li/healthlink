@@ -16,6 +16,15 @@ const AppError = require('../helpers/appErrors')
 // multer is for image upload middleware that is part of upload()
 const multer = require('multer');
 
+// Raster image types only: an SVG can carry script, and it would be served from this API's origin.
+const IMAGE_EXTENSIONS = {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+};
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
 // multerStorage is part of multer configuration
 const multerStorage = multer.diskStorage({
   destination : (req,file,cb) => {
@@ -23,7 +32,7 @@ const multerStorage = multer.diskStorage({
   },
   // file name
   filename : (req,file,cb) => {
-    const ext = file.mimetype.split('/')[1];
+    const ext = IMAGE_EXTENSIONS[file.mimetype];
     const filename = file.originalname.split(' ').join('-');
     cb(null,`${filename}-${Date.now()}.${ext}`)
   }
@@ -31,17 +40,18 @@ const multerStorage = multer.diskStorage({
 
 // multerFilter is part of multer image upload that use for filter file type
 const multerFilter = (req,file,cb) => {
-  if(file.mimetype.startsWith('image')) {
+  if(IMAGE_EXTENSIONS[file.mimetype]) {
     cb(null,true)
   } else {
-    cb(new AppError('Please upload only images',400),false)
+    cb(new AppError('Please upload a PNG, JPEG, GIF or WebP image',400),false)
   }
 }
 
-// upload() is the main multer middleware 
+// upload() is the main multer middleware
 const upload = multer({
   storage : multerStorage,
-  fileFilter : multerFilter
+  fileFilter : multerFilter,
+  limits : {fileSize: MAX_PHOTO_BYTES},
 });
 
 // image midderware export as uploadDoctorPhoto
